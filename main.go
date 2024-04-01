@@ -4,11 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"os/exec"
 	"os/signal"
 	"strings"
+	"sync"
 	"sync/atomic"
 	"syscall"
 	"time"
@@ -16,6 +18,14 @@ import (
 
 var (
 	p = atomic.Value{}
+)
+
+const (
+	SHELL_SCRIPT = `#!/usr/bin/expect
+eval spawn node ./dist/src/main
+expect "Password:"
+send -- "$HELIX_RELAYER_PASSWORD\r"
+interact`
 )
 
 func getEnv(name, defaultValue string) string {
@@ -49,9 +59,45 @@ func Password() http.HandlerFunc {
 	}
 }
 
+type RelayerBuf struct {
+	mu               sync.Mutex
+	hasInputPassword bool
+}
+
+func (s *RelayerBuf) Write(p []byte) (int, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if s.hasInputPassword {
+		fmt.Printf("[RELAYER]: %s", p)
+		return len(p), nil
+	}
+	if strings.Contains(string(p), "new schedule task added name") {
+		s.hasInputPassword = true
+		Debug("password has been input")
+		fmt.Printf("[RELAYER]: %s", p)
+	}
+	return len(p), nil
+}
+
+func (s *RelayerBuf) String() string {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return ""
+}
+
 func runHelixRelayer(ctx context.Context) *exec.Cmd {
-	subProcess := exec.CommandContext(ctx, "node", "./dist/src/main")
-	subProcess.Dir = getEnv("HELIX_RELAYER_DIR", "./relayer")
+	buf := new(RelayerBuf)
+	helixRelayerDir := getEnv("HELIX_RELAYER_DIR", "./relayer")
+	shellScriptName := getEnv("HELIX_RELAYER_SHELL_SCRIPT_NAME", ".helix_relayer.sh")
+	err := os.WriteFile(shellScriptName, []byte(SHELL_SCRIPT), 0755)
+	if err != nil {
+		log.Fatalf("write shell script error: %s\n", err)
+	}
+	subProcess := exec.CommandContext(ctx, fmt.Sprintf("./%s", shellScriptName))
+	subProcess.Stderr = os.Stderr
+	subProcess.Stdin = os.Stdin
+	subProcess.Stdout = buf
+
 	_ = os.Setenv("HELIX_RELAYER_PASSWORD", p.Load().(string))
 	if os.Getenv("LP_BRIDGE_PATH") == "" {
 		_ = os.Setenv("LP_BRIDGE_PATH", "./.maintain/configure.json")
@@ -62,16 +108,17 @@ func runHelixRelayer(ctx context.Context) *exec.Cmd {
 	}
 
 	subProcess.Env = os.Environ()
+	subProcess.Dir = helixRelayerDir
 
-	subProcess.Stdout = os.Stdout
-	subProcess.Stderr = os.Stderr
-	subProcess.Stdin = os.Stdin
 	if err := subProcess.Start(); err != nil {
-		Panicf("cmd.Run() failed with %s\n", err)
+		Panicf("cmd.Start() failed with %s\n", err)
+	}
+	if err := os.Remove(shellScriptName); err != nil {
+		Warnf("remove shell script error: %s\n", err)
 	}
 	go func() {
 		if err := subProcess.Wait(); err != nil {
-			Panicf("cmd.Run() failed with %s\n", err)
+			Panicf("cmd.Wait() failed with %s\n", err)
 		}
 	}()
 	return subProcess
@@ -85,8 +132,9 @@ func healthCheck(ctx context.Context, cmd *exec.Cmd) {
 	defer func() {
 		if err := recover(); err != nil {
 			Warnf("recovered from panic: %s\n", err)
+			go healthCheck(ctx, runHelixRelayer(ctx))
 		}
-		go healthCheck(ctx, runHelixRelayer(ctx))
+
 	}()
 	serveHealthCheck := func() error {
 		client := &http.Client{
@@ -118,7 +166,7 @@ func healthCheck(ctx context.Context, cmd *exec.Cmd) {
 				continue
 			}
 			serveHealthCheckErrorCount = 0
-			Debugf("helix relayer is running\n")
+			Debug("helix relayer is running")
 		case <-ctx.Done():
 			return
 		}
