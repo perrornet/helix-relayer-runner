@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -65,19 +66,11 @@ type RelayerBuf struct {
 	hasInputPassword bool
 }
 
-func (s *RelayerBuf) Write(p []byte) (int, error) {
+func (s *RelayerBuf) Write(data []byte) (int, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	if s.hasInputPassword {
-		fmt.Printf("[RELAYER]: %s", p)
-		return len(p), nil
-	}
-	if strings.Contains(string(p), "new schedule task added name") {
-		s.hasInputPassword = true
-		Debug("password has been input")
-		fmt.Printf("[RELAYER]: %s", p)
-	}
-	return len(p), nil
+	fmt.Printf("[RELAYER]: %s", bytes.ReplaceAll(data, []byte(p.Load().(string)), []byte("**********")))
+	return len(data), nil
 }
 
 func (s *RelayerBuf) String() string {
