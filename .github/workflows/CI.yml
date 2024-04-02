@@ -32,8 +32,8 @@ jobs:
         run: go build -a -ldflags "-s -w -extldflags '-static'" -o helix-relayer-runner
       - name: clone helix relayer code
         run: git clone https://github.com/helix-bridge/relayer
-      - name: copy helix-relayer-runner to relayer
-        run: cp ./helix-relayer-runner ./relayer/helix-relayer-runner
+      - name: copy helix-relayer-runner Dockerfile to relayer directory
+        run: cp Dockerfile relayer/ && cp helix-relayer-runner relayer/
 
       - name: Build and publish sha docker image
         uses: docker/build-push-action@v3
