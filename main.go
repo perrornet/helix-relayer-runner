@@ -153,8 +153,8 @@ func healthCheck(ctx context.Context, cmd *exec.Cmd) {
 			}
 			if cmd.ProcessState != nil && cmd.ProcessState.Exited() {
 				Warnf("helix relayer exited with %s, restarting...\n", cmd.ProcessState.String())
-				cmd = runHelixRelayer(ctx)
-				continue
+				go healthCheck(ctx, runHelixRelayer(ctx))
+				return
 			}
 			serveHealthCheckErrorCount = 0
 			Debug("helix relayer is running")
