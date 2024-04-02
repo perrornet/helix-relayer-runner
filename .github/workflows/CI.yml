@@ -21,24 +21,10 @@ jobs:
         with:
           length: 7
 
-      - name: Setup Golang with cache
-        uses: magnetikonline/action-golang-cache@v4
-        with:
-          go-version-file: go.mod
-
-      - name: download runner package
-        run: go mod download -x
-      - name: build runner
-        run: GOOS=linux GOARCH=amd64 go build -o runner .
-      - name: clone helix relayer code
-        run: git clone https://github.com/helix-bridge/relayer
-      - name: copy helix-relayer-runner Dockerfile to relayer directory
-        run: cp ./Dockerfile relayer/ && cp ./runner relayer/
-
       - name: Build and publish sha docker image
         uses: docker/build-push-action@v3
         with:
-          context: ./relayer
+          context: .
           push: ${{ github.event_name != 'pull_request' }}
           tags: quay.io/perror/helix-relayer:${{ steps.short-sha.outputs.sha }}
           labels: ${{ steps.meta.outputs.labels }}
