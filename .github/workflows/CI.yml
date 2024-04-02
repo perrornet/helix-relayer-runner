@@ -1,0 +1,44 @@
+name: CI
+on:
+  push:
+    branches: ["master"]
+
+jobs:
+  build-and-deploy:
+    name: Build and Deploy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Docker login
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.QUAY_IO_BOT_USERNAME }}
+          password: ${{ secrets.QUAY_IO_BOT_PASSWORD }}
+          registry: quay.io
+
+      - uses: benjlevesque/short-sha@v1.2
+        id: short-sha
+        with:
+          length: 7
+
+      - name: Setup Golang with cache
+        uses: magnetikonline/action-golang-cache@v4
+        with:
+          go-version-file: go.mod
+
+      - name: download server package
+        run: go mod download -x
+      - name: build server
+        run: go build -a -ldflags "-s -w -extldflags '-static'" -o helix-relayer-runner
+      - name: clone helix relayer code
+        run: git clone https://github.com/helix-bridge/relayer
+      - name: copy helix-relayer-runner to relayer
+        run: cp ./helix-relayer-runner ./relayer/helix-relayer-runner
+
+      - name: Build and publish sha docker image
+        uses: docker/build-push-action@v3
+        with:
+          context: ./relayer
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: quay.io/perror/helix-relayer:${{ steps.short-sha.outputs.sha }}
+          labels: ${{ steps.meta.outputs.labels }}

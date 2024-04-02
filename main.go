@@ -22,9 +22,10 @@ var (
 
 const (
 	SHELL_SCRIPT = `#!/usr/bin/expect
+puts "start helix relayer:$env(HELIX_RELAYER_PASSWORD)"
 eval spawn node ./dist/src/main
 expect "Password:"
-send -- "$HELIX_RELAYER_PASSWORD\r"
+send -- "$env(HELIX_RELAYER_PASSWORD)\r"
 interact`
 )
 
@@ -112,9 +113,6 @@ func runHelixRelayer(ctx context.Context) *exec.Cmd {
 
 	if err := subProcess.Start(); err != nil {
 		Panicf("cmd.Start() failed with %s\n", err)
-	}
-	if err := os.Remove(shellScriptName); err != nil {
-		Warnf("remove shell script error: %s\n", err)
 	}
 	go func() {
 		if err := subProcess.Wait(); err != nil {
