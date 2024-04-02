@@ -29,7 +29,7 @@ jobs:
       - name: download runner package
         run: go mod download -x
       - name: build runner
-        run: GOOS=linux GOARCH=amd64 go build  -a -ldflags "-s -w -extldflags '-static'" -o runner
+        run: GOOS=linux GOARCH=amd64 go build -o runner .
       - name: clone helix relayer code
         run: git clone https://github.com/helix-bridge/relayer
       - name: copy helix-relayer-runner Dockerfile to relayer directory
