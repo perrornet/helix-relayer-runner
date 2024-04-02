@@ -124,7 +124,9 @@ func healthCheck(ctx context.Context, cmd *exec.Cmd) {
 		if err := recover(); err != nil {
 			Warnf("recovered from panic: %s\n", err)
 			go healthCheck(ctx, runHelixRelayer(ctx))
+			return
 		}
+		Debug("helix relayer health check stopped")
 
 	}()
 	serveHealthCheck := func() error {
@@ -141,6 +143,7 @@ func healthCheck(ctx context.Context, cmd *exec.Cmd) {
 		defer resp.Body.Close()
 		return nil
 	}
+	Debug("start helix relayer health check...")
 	var serveHealthCheckErrorCount = 0
 	for {
 		select {
@@ -159,6 +162,7 @@ func healthCheck(ctx context.Context, cmd *exec.Cmd) {
 			serveHealthCheckErrorCount = 0
 			Debug("helix relayer is running")
 		case <-ctx.Done():
+			Debug("helix relayer is stopping")
 			return
 		}
 	}

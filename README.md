@@ -9,7 +9,7 @@ In addition, Helix-Relayer-Runner is responsible for monitoring the relayer.
 To run the Helix-Relayer-Runner, use the following Docker command:
 
 ```bash
-docker run -d --restart=allways --name=helix-relayer -e LP_BRIDGE_STORE_PATH=/data/db -e HELIX_RELAYER_DIR=/opt/relayer -e LP_BRIDGE_PATH=/data/configure.json -v ~/relayer/.maintain:/data quay.io/perror/helix-relayer:2de2d12
+docker run -dt --restart=allways --name=helix-relayer -e LP_BRIDGE_STORE_PATH=/data/db -e HELIX_RELAYER_DIR=/opt/relayer -e LP_BRIDGE_PATH=/data/configure.json -v ~/relayer/.maintain:/data quay.io/perror/helix-relayer:2de2d12
 ```
 
 After the Docker container is running, you can enter the container with the following command:
