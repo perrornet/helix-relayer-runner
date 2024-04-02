@@ -21,6 +21,8 @@ jobs:
         with:
           length: 7
 
+      - name: clone helix relayer code
+        run: git clone https://github.com/helix-bridge/relayer
       - name: Build and publish sha docker image
         uses: docker/build-push-action@v3
         with:
