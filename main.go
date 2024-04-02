@@ -148,7 +148,7 @@ func healthCheck(ctx context.Context, cmd *exec.Cmd) {
 			if err := serveHealthCheck(); err != nil {
 				serveHealthCheckErrorCount++
 				if serveHealthCheckErrorCount > 3 {
-					return
+					Panicf("helix relayer health check failed with %s\n", err)
 				}
 			}
 			if cmd.ProcessState != nil && cmd.ProcessState.Exited() {
