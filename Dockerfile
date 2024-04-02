@@ -8,9 +8,9 @@ FROM node:16-alpine
 RUN apk update && apk add expect curl
 RUN mkdir -p /opt/data
 COPY --from=builder /opt/build/dist /opt/relayer/dist
-COPY helix-relayer-runner /opt/relayer/helix-relayer-runner
+COPY ./runner /opt/relayer/runner
 WORKDIR /opt/relayer
 COPY .env.docker .env
 COPY package.json package.json
 RUN yarn install --production
-CMD [ "/opt/relayer/helix-relayer-runner" ]
+CMD [ "/opt/relayer/runner" ]

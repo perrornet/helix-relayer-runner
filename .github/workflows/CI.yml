@@ -26,14 +26,14 @@ jobs:
         with:
           go-version-file: go.mod
 
-      - name: download server package
+      - name: download runner package
         run: go mod download -x
-      - name: build server
-        run: go build -a -ldflags "-s -w -extldflags '-static'" -o helix-relayer-runner
+      - name: build runner
+        run: GOOS=linux GOARCH=amd64 go build  -a -ldflags "-s -w -extldflags '-static'" -o runner
       - name: clone helix relayer code
         run: git clone https://github.com/helix-bridge/relayer
       - name: copy helix-relayer-runner Dockerfile to relayer directory
-        run: cp Dockerfile relayer/ && cp helix-relayer-runner relayer/
+        run: cp ./Dockerfile relayer/ && cp ./runner relayer/
 
       - name: Build and publish sha docker image
         uses: docker/build-push-action@v3
