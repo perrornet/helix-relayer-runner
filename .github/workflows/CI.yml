@@ -27,5 +27,5 @@ jobs:
         with:
           context: .
           push: ${{ github.event_name != 'pull_request' }}
-          tags: quay.io/perror/helix-relayer:${{ steps.short-sha.outputs.sha }}
+          tags: perrorone/helix-relayer:${{ steps.short-sha.outputs.sha }}
           labels: ${{ steps.meta.outputs.labels }}
