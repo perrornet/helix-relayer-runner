@@ -1,27 +1,52 @@
-# Helix-Relayer-Runner
+Helix-Relayer-Runner is a project designed to run the Helix Bridge Relayer (https://github.com/helix-bridge/relayer) in a Docker container. The password is set via HTTP POST, and Helix-Relayer-Runner will start the relayer and automatically input the password. The password is only stored in memory.
 
-Helix-Relayer-Runner is a project designed to run the [Helix Bridge Relayer](https://github.com/helix-bridge/relayer) in a Docker container. The password is set via HTTP POST, and the Helix-Relayer-Runner will start the relayer and automatically input the password. The password is only stored in memory.
+## Features:
 
-In addition, Helix-Relayer-Runner is responsible for monitoring the relayer.
+* Start and manage Helix Bridge Relayer container
+* Set password via HTTP API
+* Monitor the relayer's running status
+* Automatic restart after configuration changes
 
-## Running the Helix-Relayer-Runner
+## Configuration
 
-To run the Helix-Relayer-Runner, use the following Docker command:
+Helix-Relayer-Runner uses environment variables for configuration. Here are the details:
 
-```bash
-docker run -dt --restart=allways --name=helix-relayer -e LP_BRIDGE_STORE_PATH=/data/db -e HELIX_RELAYER_DIR=/opt/relayer -e LP_BRIDGE_PATH=/data/configure.json -v ~/relayer/.maintain:/data quay.io/perror/helix-relayer:2de2d12
+### Runner Configuration
+
+* SERVER_ADDR (Default: :8080): Server listening address
+* FETCH_CONFIG_URL (Default: None): Configuration file fetch URL. If empty, local configuration files will be used, and configuration changes will not automatically restart the container.
+* CHECK_INTERVAL (Default: 1m): Interval for checking the running status of the relayer, e.g. 1s, 1m, or 1h
+
+### Helix Configuration
+
+* HELIX_ENV (Default: LP_BRIDGE_PATH=./.maintain/configure.json,LP_BRIDGE_STORE_PATH=./.maintain/db): Helix relayer environment variables, set in comma-separated key-value pairs, e.g. env1=true,env2=false
+* HELIX_COMMAND (Default: node ./dist/src/main): Command to start the relayer
+* HELIX_ROOT_DIR (Default: ./relayer): Helix relayer code root directory
+* CONFIG_PATH (Default: ./.maintain/configure.json): Configuration file path (relative to HELIX_ROOT_DIR)
+
+## Running
+
+Run Helix-Relayer-Runner with the following Docker command:
+```Bash
+docker run -dt --restart=always --name=helix-relayer \
+    -e SERVER_ADDR=:8080 \
+    -e FETCH_CONFIG_URL= \  # Optional, configuration fetch URL
+    -e LP_BRIDGE_STORE_PATH=/data/db \  # Optional, override default value
+    -e LP_BRIDGE_PATH=/data/configure.json \  # Optional, override default value
+    -v ~/relayer/.maintain:/data \  # Optional, mount external storage (optional)
+    perrorone/helix-relayer
 ```
 
-After the Docker container is running, you can enter the container with the following command:
-
-```bash
+Enter the container (optional):
+```Bash
 docker exec -it helix-relayer /bin/sh
 ```
 
-To set the password, use the following curl command:
-
-```bash
-curl -X POST "http://127.0.0.1:8080/pass" -H "content-type: application/json" -d '{"p": "<your-password>"}'
+Set password:
+```Bash
+curl -X POST "http://127.0.0.1:8080/pass" \
+-H "Content-Type: application/json" \
+-d '{"p": "<your-password>"}'
 ```
 
-Replace `<your-password>` with your actual password.
+**Note: Replace <your-password> with your actual password.**
