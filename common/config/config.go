@@ -1,6 +1,7 @@
 package config
 
 import (
+	"bytes"
 	"flag"
 	"fmt"
 	"github.com/ilyakaznacheev/cleanenv"
@@ -13,9 +14,10 @@ var config Conf
 
 type Conf struct {
 	Runner struct {
-		ServerAddr     string `json:"server_addr" yaml:"server_addr" env:"SERVER_ADDR" env-default:":8080" help:"server address"`
-		FetchConfigUrl string `json:"fetch_config_url" yaml:"fetch_config_url" env:"FETCH_CONFIG_URL" help:"fetch config url, If not set, local files will be used and will not automatically restart when configuration changes."`
-		CheckInterval  string `json:"check_interval" yaml:"check_interval" env:"CHECK_INTERVAL" env-default:"1m" help:"check interval,like:1s or 1m or 1h"`
+		ServerAddr        string `json:"server_addr" yaml:"server_addr" env:"SERVER_ADDR" env-default:":8080" help:"server address"`
+		FetchConfigUrl    string `json:"fetch_config_url" yaml:"fetch_config_url" env:"FETCH_CONFIG_URL" help:"fetch config url, If not set, local files will be used and will not automatically restart when configuration changes."`
+		CheckInterval     string `json:"check_interval" yaml:"check_interval" env:"CHECK_INTERVAL" env-default:"1m" help:"check interval,like:1s or 1m or 1h"`
+		ConfigPlaceHolder string `json:"config_place_holder" yaml:"config_place_holder" env:"CONFIG_PLACE_HOLDER" help:"it matches the placeholder and replaces it with the corresponding value, like:{{HELIX_RELAYER_PASSWORD}}=123,{{test}}=456. {{HELIX_RELAYER_PASSWORD}} and {{test}} will be replaced with 123 and 456. if FETCH_CONFIG_URL is not set, the local file will not be replaced."`
 	}
 	Helix struct {
 		RootDir    string `json:"root_dir" yaml:"root_dir" env:"HELIX_ROOT_DIR" env-default:"./relayer" help:"helix relayer root directory"`
@@ -83,4 +85,21 @@ func Help() {
 
 func Config() Conf {
 	return config
+}
+
+func (c Conf) ReplacePlaceHolder(content []byte) []byte {
+	if c.Runner.ConfigPlaceHolder == "" {
+		return content
+	}
+	for _, v := range strings.Split(c.Runner.ConfigPlaceHolder, ",") {
+		if v == "" || !strings.Contains(v, "=") {
+			continue
+		}
+		data := strings.Split(v, "=")
+		if len(data) < 2 {
+			continue
+		}
+		content = bytes.ReplaceAll(content, []byte(data[0]), []byte(data[1]))
+	}
+	return content
 }

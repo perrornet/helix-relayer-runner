@@ -72,7 +72,7 @@ func (r *Reload) saveRelayerConfig() (bool, error) {
 	if err != nil {
 		return false, errors.Wrap(err, "read new config file")
 	}
-
+	newConfData = r.conf.ReplacePlaceHolder(newConfData)
 	if bytes.Equal(newConfData, oldConfData) {
 		return false, nil
 	}
