@@ -10,15 +10,16 @@ WORKDIR /build
 COPY ./go.mod .
 RUN go mod download
 COPY . .
-RUN go build -o ./runner .
+RUN go build -o ./helix-relayer-runner .
 
 FROM node:16-alpine
 RUN apk update && apk add expect curl
 RUN mkdir -p /opt/data
 COPY --from=builder /opt/build/dist /opt/relayer/dist
-COPY --from=go-builder /build/runner /opt/relayer/runner
+COPY --from=go-builder /build/helix-relayer-runner /opt/relayer/runner
 WORKDIR /opt/relayer
 COPY ./relayer/.env.docker .env
 COPY ./relayer/package.json package.json
 RUN yarn install --production
-CMD [ "/opt/relayer/runner" ]
+ENTRYPOINT ["/opt/relayer/runner"]
+

@@ -29,3 +29,7 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: perrorone/helix-relayer:${{ steps.short-sha.outputs.sha }}
           labels: ${{ steps.meta.outputs.labels }}
+      - name: set latest
+        run: docker tag perrorone/helix-relayer:${{ steps.short-sha.outputs.sha }} perrorone/helix-relayer:latest
+      - name: push latest
+        run: docker push perrorone/helix-relayer:latest
