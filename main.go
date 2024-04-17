@@ -49,8 +49,10 @@ func Password() http.HandlerFunc {
 func main() {
 	logrus.SetFormatter(&logrus.TextFormatter{
 		ForceColors:     true,
+		DisableSorting:  true,
 		TimestampFormat: "2006-01-02 15:04:05",
 		PadLevelText:    true,
+		FullTimestamp:   true,
 	})
 	ctx, cancel := context.WithCancel(context.TODO())
 	server := &http.Server{Addr: common.GetEnv("SERVER_ADDR", ":8080"), Handler: Password()}

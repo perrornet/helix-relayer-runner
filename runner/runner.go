@@ -207,7 +207,8 @@ func Run(ctx context.Context, conf config.Conf, password string, runner Runner) 
 				logrus.Warnf("helix relayer health check failed: %s\n", err)
 				continue
 			}
-			logrus.Infof("helix relayer still running...\n")
+			t.Reset(conf.GetRunnerCheckInterval())
+			logrus.Infof("helix relayer still running, next check in %s\n", time.Now().Add(conf.GetRunnerCheckInterval()))
 			healthCheckErrorCount = 0
 			continue
 		}
