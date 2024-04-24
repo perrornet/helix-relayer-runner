@@ -3,6 +3,10 @@ on:
   push:
     branches: ["master"]
 
+# 变量
+env:
+  RELAYER_VERSION: "v1.0.4"
+
 jobs:
   build-and-deploy:
     name: Build and Deploy
@@ -21,14 +25,16 @@ jobs:
           length: 7
 
       - name: clone helix relayer code
-        run: git clone https://github.com/helix-bridge/relayer
+        run: git clone https://github.com/helix-bridge/relayer && cd relayer && git checkout $RELAYER_VERSION
       - name: Build and publish sha docker image
         uses: docker/build-push-action@v3
         with:
           context: .
           push: ${{ github.event_name != 'pull_request' }}
           tags: perrorone/helix-relayer:${{ steps.short-sha.outputs.sha }}
-          labels: ${{ steps.meta.outputs.labels }}
+          labels: |
+            relayer_version=${RELAYER_VERSION}
+            git_sha=${{ steps.short-sha.outputs.sha }}
       - name: set latest
         run: docker tag perrorone/helix-relayer:${{ steps.short-sha.outputs.sha }} perrorone/helix-relayer:latest
       - name: push latest
