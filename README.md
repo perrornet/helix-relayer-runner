@@ -1,5 +1,6 @@
 Helix-Relayer-Runner is a project designed to run the Helix Bridge Relayer (https://github.com/helix-bridge/relayer) in a Docker container. The password is set via HTTP POST, and Helix-Relayer-Runner will start the relayer and automatically input the password. The password is only stored in memory.
 
+
 ## Features:
 
 * Start and manage Helix Bridge Relayer container
@@ -15,13 +16,13 @@ Helix-Relayer-Runner uses environment variables for configuration. Here are the 
 
 * SERVER_ADDR (Default: :8080): Server listening address
 * FETCH_CONFIG_URL (Default: None): Configuration file fetch URL. If empty, local configuration files will be used, and configuration changes will not automatically restart the container.
-* CHECK_INTERVAL (Default: 1m): Interval for checking the running status of the relayer, e.g. 1s, 1m, or 1h
+* CHECK_INTERVAL (Default: 1m): INTERVAL for checking the running status of the relayer, e.g. 1s, 1m, or 1h
 
 ### Helix Configuration
 
 * HELIX_ENV (Default: LP_BRIDGE_PATH=./.maintain/configure.json,LP_BRIDGE_STORE_PATH=./.maintain/db): Helix relayer environment variables, set in comma-separated key-value pairs, e.g. env1=true,env2=false
-* HELIX_COMMAND (Default: node ./dist/src/main): Command to start the relayer
-* HELIX_ROOT_DIR (Default: ./relayer): Helix relayer code root directory
+* HELIX_COMMAND (Default: node ./dist/src/main): COMMAND to start the relayer
+* HELIX_ROOT_DIR (Default: ./relayer): Helix relayer code ROOT directory
 * CONFIG_PATH (Default: ./.maintain/configure.json): Configuration file path (relative to HELIX_ROOT_DIR)
 
 ## Running
@@ -33,7 +34,7 @@ docker run -dt --restart=always --name=helix-relayer \
     -e FETCH_CONFIG_URL= \  # Optional, configuration fetch URL
     -e LP_BRIDGE_STORE_PATH=/data/db \  # Optional, override default value
     -e LP_BRIDGE_PATH=/data/configure.json \  # Optional, override default value
-    -v ~/relayer/.maintain:/data \  # Optional, mount external storage (optional)
+    -v ~/relayer/.maintain:/data \  # Optional, mount external storage (Optional)
     perrorone/helix-relayer
 ```
 
