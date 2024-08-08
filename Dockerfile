@@ -1,4 +1,4 @@
-FROM node:16-alpine as builder
+FROM node:18-alpine as builder
 RUN mkdir -p /opt/build
 WORKDIR /opt/build
 COPY ./relayer ./
@@ -12,7 +12,7 @@ RUN go mod download
 COPY . .
 RUN go build -o ./helix-relayer-runner .
 
-FROM node:16-alpine
+FROM node:18-alpine
 RUN apk update && apk add expect curl
 RUN mkdir -p /opt/data
 COPY --from=builder /opt/build/dist /opt/relayer/dist
