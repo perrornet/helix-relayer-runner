@@ -5,7 +5,7 @@ on:
 
 # 变量
 env:
-  RELAYER_VERSION: "v1.0.13"
+  RELAYER_VERSION: "v1.1.0"
 
 jobs:
   build-and-deploy:
