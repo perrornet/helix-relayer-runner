@@ -4,7 +4,7 @@ on:
     branches: ["master"]
 
 env:
-  RELAYER_VERSION: v1.1.3"v1.1.3"
+  RELAYER_VERSION: v1.1.3
 
 jobs:
   build-and-deploy:
@@ -18,11 +18,6 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - uses: benjlevesque/short-sha@v1.2
-        id: short-sha
-        with:
-          length: 7
-
       - name: clone helix relayer code
         run: git clone https://github.com/helix-bridge/relayer && cd relayer && git checkout $RELAYER_VERSION
       - name: Build and publish sha docker image
@@ -30,11 +25,11 @@ jobs:
         with:
           context: .
           push: ${{ github.event_name != 'pull_request' }}
-          tags: perrorone/helix-relayer:${{ steps.short-sha.outputs.sha }}
+          tags: perrorone/helix-relayer:${RELAYER_VERSION}
           labels: |
             relayer_version=${RELAYER_VERSION}
             git_sha=${{ steps.short-sha.outputs.sha }}
       - name: set latest
-        run: docker tag perrorone/helix-relayer:${{ steps.short-sha.outputs.sha }} perrorone/helix-relayer:latest
+        run: docker tag perrorone/helix-relayer:${RELAYER_VERSION} perrorone/helix-relayer:latest
       - name: push latest
         run: docker push perrorone/helix-relayer:latest
