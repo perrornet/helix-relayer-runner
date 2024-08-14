@@ -2,8 +2,6 @@ name: Vheck Version
 
 on:
   push:
-    paths:
-      - '.github/workflows/check_version.yaml'
 
 jobs:
   check-and-update:
