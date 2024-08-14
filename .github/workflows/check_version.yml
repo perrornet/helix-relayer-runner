@@ -1,4 +1,4 @@
-name: Vheck Version
+name: Check Version
 
 on:
   schedule:
