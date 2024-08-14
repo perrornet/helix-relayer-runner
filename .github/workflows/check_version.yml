@@ -1,7 +1,8 @@
 name: Vheck Version
 
 on:
-  push:
+  schedule:
+    - cron: '*/5 * * * *'
 
 jobs:
   check-and-update:
@@ -33,7 +34,7 @@ jobs:
         git config user.email github-actions@github.com
         sed -i "s/RELAYER_VERSION: ${{ steps.current_version.outputs.relayer_version }}/RELAYER_VERSION: ${{ steps.latest_tag.outputs.latest_tag }}/" .github/workflows/CI.yml
         git add .github/workflows/CI.yml
-        git commit -m "Build relayer version to ${{ steps.latest_tag.outputs.latest_tag }}"
+        git commit -m "Bump relayer version to ${{ steps.latest_tag.outputs.latest_tag }}"
         git push
       env:
         GITHUB_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
