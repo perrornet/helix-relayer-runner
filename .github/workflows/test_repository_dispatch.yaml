@@ -36,4 +36,4 @@ jobs:
         git commit -m "Build relayer version to ${{ steps.latest_tag.outputs.latest_tag }}"
         git push
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
