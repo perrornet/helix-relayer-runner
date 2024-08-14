@@ -1,9 +1,38 @@
-name: Repository Dispatch
+name: CI
+
 on:
-  repository_dispatch:
-    types: [perror-test-event]
+  push:
+
 jobs:
-  myEvent:
+  check-and-update:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
-      - run: echo ${{ github.event.client_payload }}
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+        
+    - name: Get latest Relayer tag
+      id: latest_tag
+      run: |
+        latest_tag=$(curl -s https://api.github.com/repos/helix-bridge/relayer/releases/latest | grep -o '"tag_name": "[^"]*' | sed 's/"tag_name": "//')
+        echo "latest_tag=$latest_tag" >> $GITHUB_OUTPUT
+        
+    - name: Get current RELAYER_VERSION
+      id: current_version
+      run: |
+        relayer_version=$(grep -o 'RELAYER_VERSION: [^"]*' .github/workflows/CI.yaml | sed 's/RELAYER_VERSION: //')
+        echo "relayer_version=$relayer_version" >> $GITHUB_OUTPUT
+        
+    - name: Check and update RELAYER_VERSION
+      if: ${{ steps.latest_tag.outputs.latest_tag != steps.current_version.outputs.relayer_version }}
+      run: |
+        git config user.name github-actions
+        git config user.email github-actions@github.com
+        sed -i "s/RELAYER_VERSION: ${{ steps.current_version.outputs.relayer_version }}/RELAYER_VERSION: ${{ steps.latest_tag.outputs.latest_tag }}/" .github/workflows/CI.yaml
+        git add .github/workflows/CI.yaml
+        git commit -m "Update RELAYER_VERSION to ${{ steps.latest_tag.outputs.latest_tag }}"
+        git push
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
