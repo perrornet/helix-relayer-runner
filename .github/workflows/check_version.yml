@@ -2,7 +2,8 @@ name: CI
 
 on:
   push:
-
+    paths:
+      - '.github/workflows/check_version.yaml'
 jobs:
   check-and-update:
     runs-on: ubuntu-latest
@@ -12,7 +13,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
       with:
-        fetch-depth: 0
+        token: ${{ secrets.WORKFLOW_TOKEN }}
         
     - name: Get latest Relayer tag
       id: latest_tag
