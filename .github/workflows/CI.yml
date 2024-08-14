@@ -25,11 +25,11 @@ jobs:
         with:
           context: .
           push: ${{ github.event_name != 'pull_request' }}
-          tags: perrorone/helix-relayer:${RELAYER_VERSION}
+          tags: perrorone/helix-relayer:${{ env.RELAYER_VERSION }}
           labels: |
-            relayer_version=${RELAYER_VERSION}
+            relayer_version=${{ env.RELAYER_VERSION }}
             git_sha=${{ steps.short-sha.outputs.sha }}
       - name: set latest
-        run: docker tag perrorone/helix-relayer:${RELAYER_VERSION} perrorone/helix-relayer:latest
+        run: docker tag perrorone/helix-relayer:${{ env.RELAYER_VERSION }} perrorone/helix-relayer:latest
       - name: push latest
         run: docker push perrorone/helix-relayer:latest
