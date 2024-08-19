@@ -200,6 +200,7 @@ func Run(ctx context.Context, conf config.Conf, password string, runner Runner) 
 				logrus.Errorf("helix relayer health check failed more than 3 times, restarting...\n")
 				doCancelAndWait()
 				start(runner.Restart)
+				healthCheckErrorCount = 0
 				continue
 			}
 			if err := runner.HealthCheck(ctx); err != nil {
