@@ -20,6 +20,7 @@ COPY --from=go-builder /build/helix-relayer-runner /opt/relayer/runner
 WORKDIR /opt/relayer
 COPY ./relayer/.env.docker .env
 COPY ./relayer/package.json package.json
+COPY ./input_password.sh /opt/relayer/input_password.sh
 RUN yarn install --production && mkdir -p ./.maintain/db
 ENV CONFIG_PATH=./.maintain/configure.json
 ENV HELIX_ROOT_DIR=/opt/relayer

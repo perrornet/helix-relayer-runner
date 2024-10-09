@@ -28,7 +28,7 @@ jobs:
         echo "relayer_version=$relayer_version" >> $GITHUB_OUTPUT
         
     - name: Check and update RELAYER_VERSION
-      if: ${{ steps.latest_tag.outputs.latest_tag != steps.current_version.outputs.relayer_version }}
+      if: ${{ steps.latest_tag.outputs.latest_tag != steps.current_version.outputs.relayer_version && steps.latest_tag.outputs.latest_tag != '' }}
       run: |
         git config user.name github-actions
         git config user.email github-actions@github.com

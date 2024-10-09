@@ -4,8 +4,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/pkg/errors"
-	"github.com/sirupsen/logrus"
 	"helix-relayer-runner/common/config"
 	"io"
 	"net/http"
@@ -13,6 +11,9 @@ import (
 	"os/exec"
 	"path/filepath"
 	"time"
+
+	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 )
 
 var (

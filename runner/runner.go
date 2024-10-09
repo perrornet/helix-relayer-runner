@@ -2,8 +2,6 @@ package runner
 
 import (
 	"context"
-	"github.com/pkg/errors"
-	"github.com/sirupsen/logrus"
 	"helix-relayer-runner/common/config"
 	"net/http"
 	"os"
@@ -11,6 +9,9 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -87,7 +88,7 @@ func run(ctx context.Context, conf config.Conf, password string, waitErrorCallba
 	return subProcess, nil
 }
 
-func healthCheck(ctx context.Context, cmd *exec.Cmd) error {
+func healthCheck(_ context.Context, cmd *exec.Cmd) error {
 	serveHealthCheck := func() error {
 		client := &http.Client{
 			Timeout: time.Second * 2,
@@ -101,6 +102,9 @@ func healthCheck(ctx context.Context, cmd *exec.Cmd) error {
 			return errors.Errorf("status code: %d", resp.StatusCode)
 		}
 		return nil
+	}
+	if cmd == nil {
+		return errors.Errorf("helix relayer process is nil")
 	}
 	if cmd.ProcessState != nil && cmd.ProcessState.Exited() {
 		return errors.Errorf("helix relayer process exited")
@@ -196,7 +200,7 @@ func Run(ctx context.Context, conf config.Conf, password string, runner Runner) 
 				healthCheckErrorCount = 0
 				continue
 			}
-			if healthCheckErrorCount > 3 {
+			if healthCheckErrorCount >= 3 {
 				logrus.Errorf("helix relayer health check failed more than 3 times, restarting...\n")
 				doCancelAndWait()
 				start(runner.Restart)
