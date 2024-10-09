@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 message="Please enter the password: "
 while [ -z "$password" ]; do
     read -s -p "$message" password
