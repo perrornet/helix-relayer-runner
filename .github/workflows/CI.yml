@@ -4,7 +4,7 @@ on:
     branches: ["master"]
 
 env:
-  RELAYER_VERSION: v1.2.0
+  RELAYER_VERSION: v1.2.1
 
 jobs:
   build-and-deploy:
