@@ -1,9 +1,12 @@
 name: Check Version
 
 on:
-  schedule:
-    - cron: '*/5 * * * *'
-
+#  schedule:
+#    - cron: '*/5 * * * *'
+on:
+  push:
+    branches: ["master"]
+    
 jobs:
   check-and-update:
     runs-on: ubuntu-latest
