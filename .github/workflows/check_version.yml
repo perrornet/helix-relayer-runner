@@ -15,7 +15,7 @@ jobs:
       with:
         token: ${{ secrets.WORKFLOW_TOKEN }}
         
-    - name: Get latest Relayer tag
+    - name: Get latest Relayer tag 1
       id: latest_tag
       run: |
         latest_tag=$(curl -s https://api.github.com/repos/helix-bridge/relayer/releases/latest | grep -o '"tag_name": "[^"]*' | sed 's/"tag_name": "//')
